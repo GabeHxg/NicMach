@@ -20,7 +20,6 @@ def app():
     # Import data
     ibov = pd.read_csv('portIbov.csv')
     ibovValue = pd.read_csv('portIbov_value.csv')
-    ibovValue.dropna()
 
     # Format
     assets = ibov.empresa.to_list()
@@ -48,20 +47,23 @@ def app():
         mcMin = math.floor(min(ibovValue['marketCap']))
         mcMax = math.ceil(max(ibovValue['marketCap']))
         mcMean = int(ibovValue['marketCap'].mean())
-        mcRange = st.slider('Máxima Capitalização de Mercado | Bilhões R$', mcMin, mcMax, mcMean)
+        mcRange = st.slider('Máxima Capitalização de Mercado | Bilhões R$', mcMin, mcMax, mcMax, step = 5)
 
     with st.sidebar.expander('Value Analysis'):
         # trailing PE 
         tpeMin = math.floor(min(ibovValue['trailingPE']))
         tpeMax = math.ceil(max(ibovValue['trailingPE']))
         tpeMean = int(ibovValue['trailingPE'].mean())
-        tpeRange = st.slider('Trailing Price-To-Earnings', 0, tpeMax, (0, tpeMean))
+        tpeStd = ibovValue['trailingPE'].std()
+        slider_max = math.ceil(tpeMean + 1*tpeStd)
+        tpeRange = st.slider('Trailing Price-To-Earnings', 0, slider_max, (0, tpeMean))
 
         # forward PE 
         fpeMin = math.floor(min(ibovValue['forwardPE']))
         fpeMax = math.ceil(max(ibovValue['forwardPE']))
         fpeMean = int(ibovValue['forwardPE'].mean())
-        fpeRange = st.slider('Forward Price-To-Earnings', 0, fpeMax, (0, fpeMean))
+        fpeStd = ibovValue['forwardPE'].std()
+        fpeRange = st.slider('Forward Price-To-Earnings', 0, int(fpeMean+2*fpeStd), (0, fpeMean))
 
         # Price to Book 
         ptbMin = math.floor(min(ibovValue['priceToBook']))
@@ -80,7 +82,7 @@ def app():
             (ibovValue['priceToBook'] >= ptbRange[0]) & (ibovValue['priceToBook'] <= ptbRange[1])
             ]  
 
-    with st.expander('Ativos da Carteira | Value & Size Strategy'):
+    with st.expander('Ativos Resultantes | Value & Size Strategy'):
         st.write(f'{filtered_ibov.name.to_list()}')
     
     st.sidebar.markdown("""---""")
@@ -173,8 +175,6 @@ def app():
                         
     st.plotly_chart(fig, use_container_width=True)
 
-    with st.expander('Indicadores do portfólio'):
-        st.dataframe(joined_sorted_top)
     # Layout
     with st.expander('Múltiplos no período'):
         linhas = math.ceil(nAssets/4)
@@ -185,6 +185,10 @@ def app():
                 value = round(momentum_df.loc[ativo].multiplicadorPeriodo,2)
                 cols[i].metric(f'Multiplicador: {ativo}', f'X {value}')
                 i+=1
+    
+    with st.expander('Indicadores do portfólio'):
+        st.write(f'Portfólio Composto por: {joined_sorted_top.name.to_list()}')
+        st.dataframe(joined_sorted_top)
    
     st.markdown("""---""")
 

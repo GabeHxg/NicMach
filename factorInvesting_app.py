@@ -5,11 +5,11 @@ from apps import exploracao, momentum, value, multiFactor, recomendacao  # impor
 st.set_page_config(page_title="Factor Investing Case", layout="wide")
 
 apps = [
+    {"func": recomendacao.app, "title": "Introdução", "icon": "code"},
     {"func": exploracao.app, "title": "Exploração | Live API", "icon": "graph-up"},
     {"func": momentum.app, "title": "Momentum | Estático", "icon": "chevron-bar-expand"},
     {"func": value.app, "title": "Value & Size | Estático", "icon": "journal-arrow-up"},
-    {"func": multiFactor.app, "title": "Multi Fator | Estático", "icon": "diagram-3"},
-    {"func": recomendacao.app, "title": "Raciocínio", "icon": "code"}
+    {"func": multiFactor.app, "title": "Multi Fator | Estático", "icon": "diagram-3"}
 ]
 
 titles = [app["title"] for app in apps]
